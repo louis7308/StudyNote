@@ -1,0 +1,129 @@
+오늘은 코틀린을 활용해본 사람들이라면 Collection 자료주조인 List, Set, Map 등을 공부해보겠습니다!
+
+코틀린으 고차함수를 이용하기 때문에 더욱 강력한 동작을 수행 할 수 있습니다. ( 강력하다? 간편하게 가능하다는 것이죠. )
+
+### sort()
+Collection을 정렬해주는 역활을 수행합니다.
+*  **sorted()** 를 활용하면 정렬이 된 새로운 객체를 반환합니다.
+* **sortByDescending()** 등을 사용하면 내림차순 정렬이 가능합니다.
+> [!tip]
+> 내림차순이란? 5 -> 4 -> 3 -> 2 -> 1 뒤로 갈 수 록 수가 작아지는
+> 오름차순이란? 1 -> 2 -> 3 -> 4 -> 5 뒤로 갈 수 록 수가 커지는
+
+```kotlin
+fun main() {
+	val a = mutableListOf(3, 2, 1)
+	a.sort() // 오름차순 정렬
+	println(a)
+
+	val sorted = a.sortedByDescending { it } // 내림차순, 정렬된 새로운 Collection 반환
+	println(sorted)
+
+	// sortBy() : 각 객체가 갖고있는 프로퍼티를 기준으로 정렬
+	val list = mutableListOf(1 to "A", 2 to "B", 100 to "C", 50 to "D") // Pair 객체 등록
+	list.sortBy { it.second }
+	println(list)
+}
+```
+함수형 프로그래밍 언어 답게 sortBy() 라는 고차함수를 통해 Collection을 구성하는 각 객체들의 특정 프로퍼티를 기준으로 정렬을 할 수 있도록 해준다.
+위 예제에서는 Pair 객체의 second 값을 기준으로 정렬하게 된다. 따라서 위 예제를 실행해보았을 때, 아래와 같은 결과가 나온다.
+```kotlin
+[1, 2, 3]
+[3, 2, 1]
+[(1, A), (2, B), (100, C), (50, D)] // 두번째 Pair인 <Int, String> String 으로 정렬 되어진다.
+```
+
+
+### map()
+Collection을 구성하는 각 요소들에 대해 특정 표현식에 의거하여 변형을 거친 뒤 새로운 Collection을 반환해준다.
+```kotlin
+fun main() {
+	val a: List<Int> = listOf(1, 2, 3)
+	val b = a.map { it * 10 }
+	println(b)
+}
+```
+결과는
+```kotlin
+[10, 20, 30]
+```
+
+### forEach()
+Collection을 구성하는 요소들을 깔끔하게 하나씩 순회 할 수 있다.
+* **forEachIndexed()** 라는 고차함수가 있는데 이는 Index를 가져와 사용할 수 있다.
+```kotlin
+fun main() {
+	val a: List<Char> = listOf('A', 'B', 'C')
+
+	a.forEach { println(it) }
+
+	a.forEachIndexed { index, c -> println("$Index : $c") }
+}
+```
+결과는
+```
+A
+B
+C
+0 : A
+1 : B
+2 : C
+```
+
+### filter()
+특정 조건에 부합하는 요소만 걸러내서 새로운 Collection을 반환해주는 녀석이다. Boolean 값을 반환하는 표현식을 주입해준다.
+```kotlin
+fun main() {
+	val a: List<Int> = listOf(1, 2, 3, 4, 5, 6)
+	val b = a.filter { it % 2 == 0 }
+	println(b)
+}
+```
+결과는
+```kotlin
+[2, 4, 6]
+```
+
+### find()
+find는 최초로 조건에 부합하는 녀석을 반환해주는 녀석이다.
+조건에 부합하는 녀석이 끝날때까지 나타나지 않는다면 null을 반환하는 특징이 있다.
+```kotlin
+fun main() {
+	val a: List<Int> = listOf(1, 2, 3, 4, 5, 6)
+
+	val b = a.find { it % 2 == 0 }
+
+	val c = a.findLast { it % 2 == 0 }
+
+	println(b)
+	println(c)
+}
+```
+반대로 findLast() 라는 친구는 조건에 부합하는 녀석이 가장 마지막 녀석을 반환해준다
+결과는
+```kotlin
+2
+6
+```
+
+### any(), all(), none()
+Collection 각 구성 요소들을 하나씩 검사해보며 Boolean을 반환하는 함수들이다.
+```kotlin
+fun main() {
+	val list: List<Int> = listOf(1, 2, 3, 4)
+
+	if(list.any { it % 2 == 0 }) {
+		println("짝수 데이터가 존재합니다. ")
+	}
+
+	if(list.all { it % 2 == 0 }) {
+		println("모두 짝수 데이터 입니다.")
+	} else {
+		println("홀 수 데이터도 존재한다.")
+	}
+
+	if(list.none { it > 10 }) {
+		println("10보다 큰 원소가 없습니다.")
+	}
+}
+```
