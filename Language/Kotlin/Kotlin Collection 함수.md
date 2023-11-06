@@ -127,3 +127,26 @@ fun main() {
 	}
 }
 ```
+* **any()** 는 조건을 하나 만 만족하더라도 true를 반환합니다.
+* **all()** 는 조건을 모두 만족하는 요소들 일 때만 true를 반환합니다.
+* **none()** 은 조건을 모두 만족하지 않는 요소들만 존재할 때 true를 반환합니다.
+
+### flatMap()
+flatMap은 감싸져 있는 Collection을 하나로 합치기 위한 연산입니다.
+Collection을 새로 만들고, 이들을 하나의 Collection으로 Flatten 하여 반환한다.
+```kotlin
+fun main() {
+	val testList = listOf(listOf(1, 2), listOf(7, 8, 9), mutableListOf(4, 5, 6))
+	
+	val b = testList.flatMap { it }
+	val c = testList.flatMap { it.take(1) }
+
+	println(b)
+	println(c)
+}
+```
+결과는
+```kotlin
+[1, 2, 7, 8, 9, 4, 5, 6]
+[1, 7, 4]
+```
