@@ -1,20 +1,11 @@
----  
-created: {{date}} {{time}}  
----  
-tags: #todo 
-  
-# {{date}}  
-- [ ] TBU  
-- [ ] TBU  
-  
-  
-[[{{yesterday}}|< yesterday]] | [[{{tomorrow}}|tomorrow >]]  
-  
----  
-## 일감 감옥  
+---          
+## Queue(현재 할 일)
+---   
+- [ ] #todo Example
 
-```tasks  
-path includes task  
-not done  
-short mode  
-```
+
+## Today(오늘 할 일)
+---   
+- [ ] #todo Example
+- [ ] #todo Example
+  
