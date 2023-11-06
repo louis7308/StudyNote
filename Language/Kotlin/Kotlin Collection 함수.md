@@ -36,16 +36,29 @@ fun main() {
 
 ### map()
 Collection을 구성하는 각 요소들에 대해 특정 표현식에 의거하여 변형을 거친 뒤 새로운 Collection을 반환해준다.
+* **mapIndexed()** mapIndex는 Iterable의 index 값을 가진 transform function을 통해 index를 포함한 List로 변형 시킬 수 있다.
+* **mapTo()** mapTo는 특정한 수신값(destination)에 transform시켜 넣어주는 연산이다.
 ```kotlin
 fun main() {
 	val a: List<Int> = listOf(1, 2, 3)
 	val b = a.map { it * 10 }
+
+	val c = ('a'..'z').mapIndexed { index, i -> Pair(index, i) }
+
+	val mutableList: MutableList<Char> = mutableListOf()
+	('a'..'z').toList().mapTo(mutableList) { it }
+	
+
 	println(b)
+	println(c)
+	println(mutableList)
 }
 ```
 결과는
 ```kotlin
 [10, 20, 30]
+[(0, a), (1, b), (3, d), (4, e), (5, f)...]
+[a, b, c, d, e, f, g, ...]
 ```
 
 ### forEach()
@@ -150,3 +163,77 @@ fun main() {
 [1, 2, 7, 8, 9, 4, 5, 6]
 [1, 7, 4]
 ```
+
+### partition()
+어떤 원소에 대해 특정 조건을 걸어서 조건에 부합하는 녀석들과 부합하지 않는 녀석들 이렇게 두 Collection으로 분리해준다.
+이때 Pair 형태로 분리되게  되는데 **조건에 부합하는 녀석들은 first**로 가고 **아닌 녀석들은 second로 간다**
+```kotlin
+fun main() {
+	val a = listOf(1, 2, 3, 4, 5, 6)
+
+	val partition = a.partition { it % 2 == 0 }
+
+	println(partition.first) // 조건 부합
+	println(partition.second) // 조건 부합 X
+}
+```
+결과는
+```kotlin
+[2, 4, 6]
+[1, 3, 5]
+```
+
+### getOrElse()
+Collection에 인덱스로 값을 참조 했을 때, 만약 해당 인덱스에 값이 없을  경우 지정된 스코프 내에서 원하는 동작들을 수행하고 스코프 내 가장 마지막 줄 코드의 반환값을 뱉는다.
+```kotlin
+fun main() {
+	val a = listOf(1, 2, 3, 4, 5, 6)
+
+	println(a.getOrElse(2) { 10 })
+
+	println(a.getOrElse(10) {
+		println("10번째 원소가 없습니다.")
+		"반환되는 값 필요"
+	})
+}
+```
+결과는
+```
+3
+10번째 원소가 없습니다.
+반환되는 값 필요
+```
+
+### reduce(), fold()
+Collection을 구성하는 모든 원소들에 대해 누적합을 계산하는 함수들이다.
+고차함수이기 때문에 누적합을 어떻게 쌓아올리는 지에 대해 표현식을 걸어줄 수 있다.
+* **fold()** 의 경우 초기 값을 설정해줄 수 있다.
+* **reduce()** 는 첫 번째 요소를 acc 로 사용하고, 두 번째 요소 부터 연산하게 된다.
+```kotlin
+fun main() {
+	val a = listOf(1, 3, 5)
+
+	println("Fold : ${a.fold(0) { acc, i -> 
+		acc + i * 2
+	}}")
+
+	println("Reduce : ${a.reduce { acc, i -> 
+		acc + i * 2
+	}}")
+}
+```
+결과는
+```kotlin
+Fold : 18
+Reduce : 17
+```
+위 예제의 경우 **현재 누적합 + (현재 값 * 2)** 라는 표현식을 통해 누적합을 쌓이게 된다.
+
+#### fold()의 결과가 18이 나온 과정
+1. acc : 0, i : 1 -> 0 + (1 * 2) = 2
+2. acc : 2, i : 3 -> 2 + (3 * 2) = 8
+3. acc : 8, i : 5 -> 8 + (5 * 2) = 18
+
+#### reduce()의 결과가 17이 나온 과정
+1. acc : 1, i : 3 -> 1 + (3 * 2) = 7
+2. acc : 7, i : 5 -> 7 + (5 * 2) = 17
