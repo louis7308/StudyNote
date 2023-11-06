@@ -1,7 +1,7 @@
 ---  
 created: {{date}} {{time}}  
 ---  
-tags: #daily_note  
+tags: #todo 
   
 # {{date}}  
 - [ ] TBU  
