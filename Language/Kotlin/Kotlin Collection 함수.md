@@ -102,6 +102,7 @@ fun main() {
 ### find()
 find는 최초로 조건에 부합하는 녀석을 반환해주는 녀석이다.
 조건에 부합하는 녀석이 끝날때까지 나타나지 않는다면 null을 반환하는 특징이 있다.
+
 ```kotlin
 fun main() {
 	val a: List<Int> = listOf(1, 2, 3, 4, 5, 6)
