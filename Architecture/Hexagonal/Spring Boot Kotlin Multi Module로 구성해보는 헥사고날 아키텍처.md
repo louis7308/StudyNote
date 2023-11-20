@@ -35,6 +35,11 @@ dependencies {
 
 }
 ```
+> [!tip]
+> POJO란 Java로 생성한 순수한 객체를 뜻 한다.
+> 객체지향적인 원리에 충실하면서 환경과 기술에 종속되지 않고, 필요에 따라 재 활용될 수 있는 방식으로
+> 설계된 오브젝트를 의미한다.
+
 깔끔
 
 ![[Pasted image 20231117150226.png]]
@@ -115,3 +120,121 @@ class S3Config {}
 ```
 ![[Pasted image 20231117152837.png]]
 ceo-unifed-framework-retrofit
+build.gradle.kts
+
+```kotlin
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
+val jar: Jar by tasks
+val bootJar: BootJar by tasks
+
+bootJar.enabled = false
+jar.enabled = true
+
+dependencies {
+    implementation(project(":ceo-united-domain"))
+    implementation(project(":ceo-united-application"))
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:3.14.9")
+    implementation("com.squareup.okhttp3:logging-interceptor:3.14.9") 
+```
+RetrofitConfig.kt
+
+```kotlin
+@Configuration
+@ComponentScan(
+    basePackages = [
+        "com.baemin.ceo.united.framework.retrofit.adapter",
+        "com.baemin.ceo.united.framework.retrofit.config"
+    ]
+)
+class RetrofitConfig {
+```
+![[Pasted image 20231120104553.png]]
+## BootStrap Hexagon
+* Primary/Driving Adapters ( User Interface 영역 )
+* 프로그램의 기능을 사용하기 위한 시작점
+* 우리는 RestAPI를 제공하는 WebService, Apache, Kafka, AWS의 SQS(Simple Queue Service)를 구독하는 Consumer가 존재 (Controller 라고 보는게 맞겠네) API 호출 및 security
+* Domain, Applicaiton, Framework Hexagon에 대하여 의존적, 애플리케이션 구동에 필요한 모듈의 config만 선별적으로 import
+
+ceo-united-bootstrap-api
+build.gradle.kts
+```kotlin
+apply(plugin = "kotlin-kapt")
+
+dependencies {
+
+	implementation(project(":ceo-united-domain"))
+    implementation(project(":ceo-united-application"))
+    implementation(project(":ceo-united-framework-aws"))
+    implementation(project(":ceo-united-framework-retrofit"))
+
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+}
+```
+
+CeoUnitedApiApplication.kt
+```kotlin
+@SpringBootApplication
+@Import(
+	value = [AppConfig::class, MongoConfig::class, RetrofitConfig::class]
+)
+
+@ConfigurationPropertiesScan
+class CeoUnitedApiApplication
+
+fun main(args: Array<String>) {
+	runApplication<CeoUnitedApiApplication>(*args)
+}
+```
+![[Pasted image 20231120105218.png]]
+#### ceo-united-bootstrap-worker
+
+build.gradle.kts
+
+```kotlin
+apply(plugin = "kotlin-kapt")
+
+dependencies {
+    implementation(project(":ceo-united-domain"))
+    implementation(project(":ceo-united-application"))
+    implementation(project(":ceo-united-framework-aws"))
+    implementation(project(":ceo-united-framework-cache"))
+    implementation(project(":ceo-united-framework-retrofit"))
+
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
+
+    implementation("org.springframework.cloud:spring-cloud-starter-aws-messaging:2.2.6.RELEASE")
+    implementation("org.springframework.kafka:spring-kafka")
+```
+
+CeoUnitedWorkerApplication.kt
+
+```kotlin
+@SpringBootApplication(
+    scanBasePackageClasses = [
+        CeoUnitedWorkerApplication::class
+    ]
+)
+@Import(value = [AppConfig::class, MongoConfig::class, RetrofitConfig::class, CacheConfig::class, S3Config::class])
+@ConfigurationPropertiesScan
+class CeoUnitedWorkerApplication
+fun main(args: Array<String>) {
+    runApplication<CeoUnitedWorkerApplication>(*args)
+}
+```
+## 개발사례
+
+> 사장님이 사용하는 포스(POS)가 시작될 때 클라이언트 환경설정을 조회하되, 그 설정이 존재하지 않으면 초기화된 설정으로 제공하고 싶다.
+
+위와 같은 요구사항이 발생하였을 때 우리가 구성한 아키텍처에서는 다음과 같이 개발됩니다.
+
+(code snippet은 콘셉트를 알기 위함으로 일부 발췌된 코드입니다.)
+![[Pasted image 20231120105538.png]]
